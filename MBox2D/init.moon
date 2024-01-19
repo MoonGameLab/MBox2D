@@ -1,6 +1,9 @@
 path = ...
-root = path .. "."
+export MBOX2D_ROOT = path .. "."
 
-utils = {
-  math: assert require root .. 'libs.MoonMath' 
+Mbox2D = {
+  World: assert require MBOX2D_ROOT .. "World"
+  Collider: assert require MBOX2D_ROOT .. "Collider"
 }
+
+return Mbox2D
