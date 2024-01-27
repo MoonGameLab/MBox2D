@@ -2,6 +2,8 @@ love = love
 Physics = love.physics
 table = table
 tInsert = table.insert
+tRemove = table.remove
+tSort = table.sort
 
 
 _WORLD_METER = 32
@@ -69,8 +71,8 @@ class World extends Singleton
       collisionIgnores[colliClassName] = colliClass.ignores or {}
 
     -- see: https://love2d.org/forums/viewtopic.php?p=155547&sid=efbf28114d92567c4c22aa380498aa90#p155547
-    incoming = {}
-    expanded = {}
+    incoming = {} -- incoming coli event from another colliClass
+    expanded = {} -- expanded coli event the current colliClass
     all      = {}
 
     for objType, _ in pairs collisionIgnores
@@ -78,6 +80,7 @@ class World extends Singleton
       expanded[objType] = {}
       tInsert all, objType
 
+    -- 
     for objType, ignoreList in pairs collisionIgnores
       for k, ignoredType in pairs ignoreList
         -- TODO ignore first char case
@@ -86,8 +89,61 @@ class World extends Singleton
             tInsert incoming[allObjType], objType
             tInsert expanded[objType], allObjType
         elseif type(ignoredType) == 'string'
-          tInsert incoming[ignoredType], objType
-          tInsert incoming[objType], ignoredType
+          if ignoredType == 'All' or ignoredType == 'all'
+            tInsert incoming[ignoredType], objType
+            tInsert incoming[objType], ignoredType
+
+        if k == 'except'
+          for _, exceptIgnoredType in ipairs ignoredType
+            for i, v in ipairs incoming[exceptIgnoredType]
+              if v == objType
+               tRemove incoming[exceptIgnoredType], i
+               break
+          for _, exceptIgnoredType in ipairs ignoredType
+            for i, v in ipairs expanded[objType]
+              if v == exceptIgnoredType
+                tRemove expanded[objType], i
+                break
+
+    edgeGroups = {}
+
+    for k, v in pairs incoming
+      tSort v, (a, b) -> string.lower(a) < string.lower(b)
+    
+    local i
+    i = 0
+
+    for k, v in pairs incoming
+      str = ""
+      for _, c in ipairs v
+        str ..= c
+      
+      if edgeGroups[str] == nil
+        i += 1
+        edgeGroups[str] = {n: i}
+
+      tInsert edgeGroups[str], k
+
+    categories = {}
+
+    for k, _ in pairs collisionIgnores
+      categories[k] = {}
+    
+    for k, v pairs edgeGroups
+      for _, c in ipairs v
+        categories[c] = v.n
+
+    for k, v in pairs expanded
+      category = {categories[k]}
+      currentMsks = {}
+      for _, c in ipairs v
+        tInsert currentMsks, categories[c]
+      @masks[k] = {categories: category, masks: currentMsks}
+
+    
+
+      
+      
         
 
   addCollisionClass: (colliClassName, colliClass) =>
