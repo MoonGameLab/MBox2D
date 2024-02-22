@@ -64,6 +64,12 @@ class World extends Singleton
       .post.sensor = {}
       .post.nonSensor = {}
 
+  clearColliEvents: =>
+    bodies = @box2DWorld\getBodies!
+    for _, body in ipairs(bodies)
+      collider = body\getFixtures()[1]\getUserData!
+      collider\collisionEventsClear! -- Will depend on collider class.
+
   generateCategoriesMasks: =>
     collisionIgnores = {}
 
@@ -129,7 +135,7 @@ class World extends Singleton
     for k, _ in pairs collisionIgnores
       categories[k] = {}
     
-    for k, v pairs edgeGroups
+    for k, v in pairs edgeGroups
       for _, c in ipairs v
         categories[c] = v.n
 
@@ -139,12 +145,6 @@ class World extends Singleton
       for _, c in ipairs v
         tInsert currentMsks, categories[c]
       @masks[k] = {categories: category, masks: currentMsks}
-
-    
-
-      
-      
-        
 
   addCollisionClass: (colliClassName, colliClass) =>
     if @collisionClasses[colliClassName] then error 'Collision class ' .. colliClassName .. ' already exists.'
