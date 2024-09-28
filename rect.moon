@@ -1,4 +1,4 @@
-aux = assert require MBOX2DPATH .. 'aux'
+aux = assert require MBOX2DPATH .. '.aux'
 -- aux = assert require 'aux' -- Just for now to run some tests and so Busted does not complain.
 
 abs, floor, ceil, min, max = math.abs, math.floor, math.ceil, math.min, math.max
@@ -11,18 +11,18 @@ rectGetNearestCorner = (x, y, w, h, px, py) ->
 rectGetSegmentIntersectionIndices = (x, y, w, h, x1, y1, x2, y2, t0, t1) ->
   t0, t1 = t0 or 0, t1 or 1
   dx, dy = x2 - x1, y2 - y1
-  local nx, ny
-  nx1, ny1, nx2, ny2 = 0, 0, 0, 0
+  local nx, ny, _sides
+  nx1, ny1, nx2, ny2, _sides = 0, 0, 0, 0, 4
   -- p = X/YDelta
   -- q = edge
   -- r = q/p
   local p, q, r
 
-  for side = 1, 4
+  for side = 1, _sides
     if     side == 1 then nx,ny,p,q = -1, 0, -dx, x1 - x -- left
-    elseif side == 2 then nx,ny,p,q =  1, 0,  dx, x + w - x1 --
-    elseif side == 3 then nx,ny,p,q =  0,-1, -dy, y1 - y
-    else                  nx,ny,p,q =  0, 1,  dy, y + h - y1
+    elseif side == 2 then nx,ny,p,q =  1, 0,  dx, x + w - x1 -- right
+    elseif side == 3 then nx,ny,p,q =  0,-1, -dy, y1 - y -- top
+    else                  nx,ny,p,q =  0, 1,  dy, y + h - y1 -- bottom
 
     if p == 0
       if q <= 0 then return nil
