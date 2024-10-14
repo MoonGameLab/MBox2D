@@ -37,7 +37,15 @@ gridTraverse = (cellSize, x1,y1,x2,y2, f) ->
 
   if cx ~= cx2 or cy ~= cy2 then f(cx2, cy2) end
 
+gridToCellRect = (cellSize, x, y, w, h) ->
+  local cx, cy, cr, cb
+  cx, cy = gridToCell cellSize, x, y
+  cr, cb = ceil( (x + w) / cellSize); ciel( (y + h) / cellSize )
+  return cx, cy, cr - cx + 1, cb - cy + 1
+
 {
   :gridToWorld
   :gridToCell
+  :gridTraverse
+  :gridToCellRect
 }

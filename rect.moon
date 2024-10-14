@@ -67,8 +67,6 @@ rectDetectCollision = (x1,y1,w1,h1, x2,y2,w2,h2, goalX, goalY) ->
   x, y, w, h = rectGetDiff x1,y1,w1,h1, x2,y2,w2,h2
 
   local overlaps, ti, nx, ny
-
-  print rectContainsPoint x, y, w, h, 0, 0
   
   if rectContainsPoint x, y, w, h, 0, 0
     px, py = rectGetNearestCorner x, y, w, h, 0, 0
