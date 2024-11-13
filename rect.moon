@@ -1,7 +1,9 @@
+MBOX2DPATH = MBOX2DPATH
+
 aux = assert require MBOX2DPATH .. '.aux'
 -- aux = assert require 'aux' -- Just for now to run some tests and so Busted does not complain.
 
-abs, floor, ceil, min, max = math.abs, math.floor, math.ceil, math.min, math.max
+abs, min = math.abs, math.min
 
 
 rectGetNearestCorner = (x, y, w, h, px, py) ->
@@ -67,7 +69,7 @@ rectDetectCollision = (x1,y1,w1,h1, x2,y2,w2,h2, goalX, goalY) ->
   x, y, w, h = rectGetDiff x1,y1,w1,h1, x2,y2,w2,h2
 
   local overlaps, ti, nx, ny
-  
+
   if rectContainsPoint x, y, w, h, 0, 0
     px, py = rectGetNearestCorner x, y, w, h, 0, 0
     wi, hi = min(w1, abs(px)), min(h1, abs(py))
@@ -76,7 +78,7 @@ rectDetectCollision = (x1,y1,w1,h1, x2,y2,w2,h2, goalX, goalY) ->
   else
     ti1,ti2,nx1,ny1 = rectGetSegmentIntersectionIndices x,y,w,h, 0,0,dx,dy, -math.huge, math.huge
 
-    if ti1 and ti1 < 1 and (abs(ti1 - ti2) >= DELTA) and (0 < ti1 + DELTA or 0 == ti1 and ti2 > 0)
+    if ti1 and ti1 < 1 and (abs(ti1 - ti2) >= aux.DELTA) and (0 < ti1 + aux.DELTA or 0 == ti1 and ti2 > 0)
       ti, nx, ny = ti1, nx1, ny1
       overlaps   = false
 
@@ -84,7 +86,7 @@ rectDetectCollision = (x1,y1,w1,h1, x2,y2,w2,h2, goalX, goalY) ->
     return
 
   local tx, ty
-  
+
   if overlaps
     if dx == 0 and dy == 0
       px, py = rectGetNearestCorner x,y,w,h, 0,0
