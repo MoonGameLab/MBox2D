@@ -5,8 +5,8 @@ DELTA = 1e-10
 
 
 sign = (x) ->
-  if x > 0 then return 1 
-  if x == 0 then return 0 
+  if x > 0 then return 1
+  if x == 0 then return 0
   return -1
 
 nearest = (x, a, b) ->
