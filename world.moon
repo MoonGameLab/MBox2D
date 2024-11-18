@@ -1,7 +1,11 @@
 MBOX2DPATH = MBOX2DPATH
 
-{:rectGetSquareDist} = assert require MBOX2DPATH .. ".rect"
+{
+  :rectGetSquareDist
+  :rectGetSegmentIntersectionIndices
+} = assert require MBOX2DPATH .. ".rect"
 {:assertIsPositiveNum} = assert require MBOX2DPATH .. ".aux"
+{:gridTraverse} = assert require MBOX2DPATH .. ".grid"
 
 {
   :touch
@@ -9,6 +13,8 @@ MBOX2DPATH = MBOX2DPATH
   :slide
   :bounce
 } =  assert require MBOX2DPATH .. ".response"
+
+min = math.min
 
 World = {}
 WorlsMeta = { __index: World }
@@ -73,7 +79,61 @@ removeItemToCell = (self, item, cx, cy) ->
 
   true
 
+getDictItemsInCellRect = (self, cl,ct,cw,ch) ->
+  itemsDict = {}
+  for cy=ct, ct+ch-1
+    row = self.rows[cy]
+    if row
+      for cx=cl, cl+cw-1
+        cell = row[cx]
+        if cell and cell.itemCount > 0
+          for item, _ in pairs cell.items
+            itemsDict[item] = true
+  itemsDict
 
+getCellsTouchedBySegment = (self, x1,y1,x2,y2) ->
+  cells, cellsLen, visited = {}, 0, {}
+
+  gridTraverse self.cellSize, x1, y1, x2, y2, (cx, cy) ->
+    row = self.rows[cy]
+    unless row then return
+    cell = row[cx]
+    if not cell or visited[cell] then return
+
+    visited[cell] = true
+    cellsLen += 1
+    cells[cellsLen] = cell
+
+  return cells, cellsLen
+
+getInfoAboutItemsTouchedBySegment = (self, x1,y1, x2,y2, filter) ->
+  cells, len = getCellsTouchedBySegment self, x1, y1, x2, y2
+  local cell, rect, l, t, w, h, ti1, ti2, tii0, tii1
+  visited, itemInfo, itemInfoLen = {}, {}, 0
+
+  for i=1, len
+    cell = cells[i]
+    for item in pairs cell.items
+      if not visited[item]
+        visited[item] = true
+        if not filter or filter(item)
+          rect = self.rects[item]
+          l, t, w, h = rect.x, rect.y, rect.w, rect.h
+
+          ti1, ti2 = rectGetSegmentIntersectionIndices l,t,w,h, x1,y1, x2,y2, 0, 1
+          if ti1 and ((0 < ti1 and ti1 < 1) or (0 < ti2 and ti2 < 1))
+            tii0,tii1 = rectGetSegmentIntersectionIndices l,t,w,h, x1,y1, x2,y2, -math.huge, math.huge
+            itemInfoLen += 1
+            itemInfo[itemInfoLen] = {item: item, ti1: ti1, ti2: ti2, weight: min(tii0,tii1)}
+  table.sort itemInfo, sortByWeight
+  itemInfo, itemInfoLen
+
+
+getResponseByName = (self, name) ->
+  response = self.responses[name]
+  unless response
+    error(('Unknown collision type: %s (%s)')\format(name, type(name)))
+  response
 
 
 World

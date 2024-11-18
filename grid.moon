@@ -1,4 +1,4 @@
-floor = math.floor
+floor, abs, ceil = math.floor, math.abs, math.ceil
 
 
 gridToWorld = (cellSize, cx, cy) ->
@@ -35,12 +35,12 @@ gridTraverse = (cellSize, x1,y1,x2,y2, f) ->
       ty, cy = ty + dy, cy + stepY
       f cx, cy
 
-  if cx ~= cx2 or cy ~= cy2 then f(cx2, cy2) end
+  if cx ~= cx2 or cy ~= cy2 then f(cx2, cy2)
 
 gridToCellRect = (cellSize, x, y, w, h) ->
   local cx, cy, cr, cb
   cx, cy = gridToCell cellSize, x, y
-  cr, cb = ceil( (x + w) / cellSize); ciel( (y + h) / cellSize )
+  cr, cb = ceil( (x + w) / cellSize); ceil( (y + h) / cellSize )
   return cx, cy, cr - cx + 1, cb - cy + 1
 
 {
